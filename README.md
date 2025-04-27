@@ -1,1 +1,5 @@
-# Hotel-Management-System-2.0-
+# Hotel-Management-System
+
+Finished version 1 hotel management system
+
+CAUTION : NO ERROR HANDLING 
