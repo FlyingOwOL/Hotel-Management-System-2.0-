@@ -68,6 +68,15 @@ public class AssistMethods {
         }
         return isValid;
     }
+    public static boolean isValidRoomType (String roomType){
+        boolean isValid = false;
+        if (roomType.equals("Standard") || roomType.equals("Deluxe") || roomType.equals("Executive")) {
+            isValid = true;
+        } else {
+            System.out.println("Invalid room type, please enter Standard, Deluxe, or Executive");
+        }
+        return isValid;
+    }
 
     public static void hotelSelection (Objects.Hotel hotel, Scanner userInput ){
         int dChoice = 0;
@@ -235,6 +244,7 @@ public class AssistMethods {
         String roomNumber = null;
         String checkInDate = null;
         String checkOutDate = null;
+        String roomType = null;
         boolean isNotValid = false;
         System.out.print ("Enter your name: ");
         name = userInput.nextLine();
@@ -267,6 +277,11 @@ public class AssistMethods {
             checkOutDate = userInput.nextLine();
             isNotValid = isValidDate(checkOutDate);
         } while (!isNotValid);
-        hotel.addReservation(name, roomNumber, checkInDate, checkOutDate);
+        do{
+            System.out.print ("Enter room type (e.g., Standard, Deluxe, Executive): ");
+            roomType = userInput.nextLine();
+            isNotValid = isValidRoomType(roomType);
+        } while (!isNotValid);
+        hotel.addReservation(name, roomNumber, checkInDate, checkOutDate, roomType);
     }
 }

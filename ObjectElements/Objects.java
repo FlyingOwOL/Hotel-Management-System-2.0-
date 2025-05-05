@@ -62,12 +62,12 @@ public class Objects
             int dIndex = Integer.parseInt(roomNumber.substring(1));
             return rooms[dIndex].isAvailable();
         }
-        public void addReservation (String name, String roomNumber, String checkInDate, String checkOutDate) {
+        public void addReservation (String name, String roomNumber, String checkInDate, String checkOutDate, String roomType) {
             if (dReservations < constants.MAX_RESERVATIONS) {
                 dReservations++;
                 int dIndex = Integer.parseInt(roomNumber.substring(1));
-                reservations[dIndex] = new reservation(name, roomNumber, checkInDate, checkOutDate, basePrice);
-                rooms[dIndex].addReservation(name, checkInDate, checkOutDate, basePrice);
+                reservations[dIndex] = new reservation(name, roomNumber, checkInDate, checkOutDate, basePrice, roomType);
+                rooms[dIndex].addReservation(name, checkInDate, checkOutDate, basePrice, roomType);
                 System.out.printf ("Reservation for %s has been added\n", name);
                 this.estimateEarning += rooms[dIndex].getReservationTotalAmount();
                 this.bookedRooms[dIndex] = rooms[dIndex];
@@ -222,8 +222,17 @@ public class Objects
             public boolean isAvailable () {
                 return isAvailable;
             }
-            public void addReservation (String name, String checkInDate, String checkOutDate, double basePrice) {
-                this.reservation = new reservation(name, roomNumber, checkInDate, checkOutDate, basePrice);
+            public void addReservation (String name, String checkInDate, String checkOutDate, double basePrice, String roomType) {
+                if (roomType.equals("Deluxe")) {
+                    this.roomNumber = String.format("%cD%03d", roomPrefix, Integer.parseInt(roomNumber.substring(1)));
+                    this.reservation = new reservation(name, roomNumber, checkInDate, checkOutDate, basePrice + .20 * basePrice, roomType);
+                } else if (roomType.equals("Executive")) {
+                    this.roomNumber = String.format("%cE%03d", roomPrefix, Integer.parseInt(roomNumber.substring(1)));
+                    this.reservation = new reservation(name, roomNumber, checkInDate, checkOutDate, basePrice + .35 * basePrice, roomType);
+                } else {
+                    this.roomNumber = String.format("%c%03d", roomPrefix, Integer.parseInt(roomNumber.substring(1)));
+                    this.reservation = new reservation(name, roomNumber, checkInDate, checkOutDate, basePrice, roomType);
+                }
                 this.isAvailable = false;
             }
             public String getReservationName () {
@@ -238,7 +247,54 @@ public class Objects
             public double getReservationTotalAmount () {
                 return reservation != null ? reservation.getTotalAmount() : 0.0;
             }
+            public String getRoomType () {
+                return "Standard Room";
+            }
         } 
+        private class deluxeRoom extends room
+        {
+            private String roomNumber; //Deluxe room number
+            private double basePrice;
+            private deluxeRoom (int roomNumber, char cPrefix, double basePrice) {
+                super(roomNumber, cPrefix, basePrice);
+                this.roomNumber = String.format("%cD%03d", cPrefix, roomNumber);
+                this.basePrice = 1999 + 0.3 * basePrice; // 30% increase for deluxe room    
+            }
+            public double getBasePrice () {
+                return basePrice;
+            }
+            public void setBasePrice (double basePrice) {
+                this.basePrice = basePrice;
+            }
+            public String getRoomNumber () {
+                return roomNumber;
+            }
+            public String getRoomType () {
+                return "Deluxe Room";
+            }
+        }
+        private class executiveRoom extends room
+        {
+            private String roomNumber; //Executive room number
+            private double basePrice;
+            private executiveRoom (int roomNumber, char cPrefix, double basePrice) {
+                super(roomNumber, cPrefix, basePrice);
+                this.roomNumber = String.format("%cE%03d", cPrefix, roomNumber);
+                this.basePrice = 2999 + 0.5 * basePrice; // 50% increase for executive room    
+            }
+            public double getBasePrice () {
+                return basePrice;
+            }
+            public void setBasePrice (double basePrice) {
+                this.basePrice = basePrice;
+            }
+            public String getRoomNumber () {
+                return roomNumber;
+            }
+            public String getRoomType () {
+                return "Executive Room";
+            }
+        }
         
         private class reservation
         {
@@ -247,7 +303,8 @@ public class Objects
             private String checkInDate;
             private String checkOutDate;
             private double totalAmount;
-            private reservation (String name, String roomNumber, String checkInDate, String checkOutDate, double basePrice) {
+            private String roomType;
+            private reservation (String name, String roomNumber, String checkInDate, String checkOutDate, double basePrice, String roomType) {
                 int inMonth = Integer.parseInt (checkInDate.substring(0, 2));
                 int outMonth = Integer.parseInt (checkOutDate.substring(0, 2));
                 int inDay = Integer.parseInt (checkInDate.substring(3, 5));
@@ -257,6 +314,7 @@ public class Objects
                 this.checkInDate = checkInDate;
                 this.checkOutDate = checkOutDate;
                 this.totalAmount = ((outMonth - inMonth) * 30 + (outDay - inDay)) * basePrice; //assuming each month has 30 days
+                this.roomType = roomType;
             }
             public String getName () {
                 return name;
@@ -272,6 +330,9 @@ public class Objects
             }
             public double getTotalAmount () {
                 return totalAmount;
+            }
+            public String getRoomType () {
+                return roomType;
             }
         }        
     }
